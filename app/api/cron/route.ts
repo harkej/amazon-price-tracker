@@ -6,7 +6,7 @@ import Product from "@/lib/models/product.model";
 import { scrapeAmazonProduct } from "@/lib/scraper";
 import { generateEmailBody, sendEmail } from "@/lib/nodemailer";
 
-export const maxDuration = 10; // This function can run for a maximum of 300 seconds
+export const maxDuration = 10; // This function can run for a maximum of 10 seconds
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     if (!products) throw new Error("No product fetched");
 
     // ======================== 1 SCRAPE LATEST PRODUCT DETAILS & UPDATE DB
-    const updatedProducts = await Promise.all(
+    const updatedProducts = Promise.all(
       products.map(async (currentProduct) => {
         // Scrape product
         const scrapedProduct = await scrapeAmazonProduct(currentProduct.url);
@@ -73,8 +73,7 @@ export async function GET(request: Request) {
     );
 
     return NextResponse.json({
-      message: "Ok",
-      data: updatedProducts,
+      message: "Scraping scheduled",
     });
   } catch (error: any) {
     throw new Error(`Failed to get all products: ${error.message}`);
